@@ -7,13 +7,15 @@ require('dotenv').config();
 // middleware
 app.use(express.json());
 
+//server
+const PORT=process.env.PORT 
+app.listen(PORT,()=>{
+    console.log(`Server is listening on ${PORT}`);
+})
+
 //db
 connectToDb();
 
 //product routes
 app.use('/store',productRouter);
 
-const PORT=process.env.PORT 
-app.listen(PORT,()=>{
-    console.log(`Server is listening on ${PORT}`);
-})
