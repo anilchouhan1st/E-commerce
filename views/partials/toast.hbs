@@ -1,0 +1,30 @@
+<div
+  class="custom-toast"
+  data-toast-type="{{toast.type}}"
+  data-toast-title="{{toast.title}}"
+  data-toast-message="{{toast.message}}"
+>
+    <div class="custom-toast-content">
+        <i class="icon"></i>
+
+        <div class="message">
+            <span class="text text-1"></span>
+            <span class="text text-2"></span>
+        </div>
+    </div>
+
+    <i class="fa-solid fa-xmark close"></i>
+    <div class="progress"></div>
+</div>
+
+{{!-- {{#if toast}}
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+        showToast(
+            "{{toast.type}}",
+            "{{toast.title}}",
+            "{{toast.message}}"
+        );
+    });
+</script>
+{{/if}} --}}

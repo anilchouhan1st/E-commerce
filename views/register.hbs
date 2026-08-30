@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/navbar.css">
+    <link rel="stylesheet" href="/css/toast.css">
+    <link rel="stylesheet" href="/css/password.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="icon" href="/images/A.png">
+</head>
+
+<body class="register-body">
+
+    <div class="nav-wrapper">
+        <nav class="nav">
+            {{> navbar}}
+        </nav>
+    </div>
+
+    <div class="register-page">
+        <div class="register-container">
+            <div class="form-box" id="register-form">
+                <h2>Register</h2>
+
+                {{#if message}}
+                <p style="color: red;">{{message}}</p>
+                {{/if}}
+
+                <form id="registerForm" class="row g-3" action="/auth/register" method="POST">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <input type="text" name="name" class="form-control" placeholder="Name">
+
+                    <input type="email" name="email" class="form-control" placeholder="Email">
+
+                    <div class="password-box">
+                        <input type="password" id="password" name="password" class="form-control"
+                            placeholder="Password">
+                        <i class="fa-regular fa-eye toggle-password" data-target="password"></i>
+                    </div>
+
+                    <div class="password-box">
+                        <input type="password" id="confirm-password" name="Confirm_password" class="form-control"
+                            placeholder="Confirm password">
+                        <i class="fa-regular fa-eye toggle-password" data-target="confirm-password"></i>
+                    </div>
+
+                    <div id="password-rules" class="password-rules">
+                        <h6>Password Requirements</h6>
+
+                        <small id="length">❌ At least 8 characters</small>
+                        <small id="upper">❌ One uppercase letter</small>
+                        <small id="lower">❌ One lowercase letter</small>
+                        <small id="number">❌ One number</small>
+                        <small id="special">❌ One special character</small>
+                    </div>
+
+                    <p>Already have an account? <a href="/login">Login</a></p>
+
+                    <button id="registerBtn" type="submit">Register</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{> toast}}
+
+    <script src="/js/navbar.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/password-validation.js"></script>
+    <script src="/js/password-toggle.js"></script>
+    <script src="/js/form-loader.js"></script>
+
+    <script nonce="{{nonce}}">
+        setupLoadingButton(
+            "registerForm",
+            "registerBtn",
+            "Creating Account..."
+        );
+    </script>
+
+</body>
+
+</html>

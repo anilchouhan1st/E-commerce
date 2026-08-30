@@ -1,0 +1,153 @@
+.custom-toast {
+  position: fixed;
+  top: 25px;
+  right: 30px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px 35px 20px 25px;
+  box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: translateX(calc(100% + 30px));
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  z-index: 99999;
+}
+
+.custom-toast.active {
+  transform: translateX(0%);
+}
+
+.custom-toast {
+  display: block;
+}
+
+.custom-toast .custom-toast-content {
+  display: flex;
+  align-items: center;
+}
+
+.custom-toast-content .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  min-width: 35px;
+  background-color: #4070f4;
+  color: #fff;
+  font-size: 20px;
+  border-radius: 50%;
+}
+
+.custom-toast-content .message {
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px;
+}
+
+.message .text {
+  font-size: 16px;
+  font-weight: 400;
+  color: #666666;
+}
+
+.message .text.text-1 {
+  font-weight: 600;
+  color: #333;
+}
+
+.custom-toast .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  padding: 5px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.custom-toast .close:hover {
+  opacity: 1;
+}
+
+.custom-toast .progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+
+}
+
+.custom-toast .progress:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #4070f4;
+}
+
+.progress.active:before {
+  animation: progress 5s linear forwards;
+}
+
+@keyframes progress {
+  100% {
+    right: 100%;
+  }
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 20px;
+  outline: none;
+  border: none;
+  background-color: #4070f4;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #0e4bf1;
+}
+
+.custom-toast.active~button {
+  pointer-events: none;
+}
+
+.custom-toast.success .icon,
+.custom-toast.success .progress:before {
+  background: #22c55e;
+}
+
+.custom-toast.error .icon,
+.custom-toast.error .progress:before {
+  background: #ef4444;
+}
+
+.custom-toast.warning .icon,
+.custom-toast.warning .progress:before {
+  background: #f59e0b;
+}
+
+.custom-toast.info .icon,
+.custom-toast.info .progress:before {
+  background: #3b82f6;
+}
+
+.custom-toast.success .icon {
+  background: #22c55e;
+}
+
+.custom-toast.error .icon {
+  background: #ef4444;
+}
+
+.custom-toast.warning .icon {
+  background: #f59e0b;
+}
+
+.custom-toast.info .icon {
+  background: #3b82f6;
+}
