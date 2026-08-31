@@ -1,137 +1,99 @@
 const express = require("express");
 const dotenv = require("dotenv");
-
-
-dotenv.config({ path: './.env' });
-const helmet = require("helmet");
-const crypto = require("crypto");
-
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const hbs = require("hbs");
+const helmet = require("helmet");
+const crypto = require("crypto");
+
+// Load environment variables
+dotenv.config({ path: './.env' });
 
 const app = express();
+
+//Database connection
+
 const { connectToDatabase } = require("./database/db");
-const authController = require("./controllers/auth");
+
+//Middleware
 const { generateCsrfToken, invalidCsrfTokenError } = require("./middleware/csrf");
+const { attachUser } = require("./middleware/auth");
+const securityMiddleware = require("./middleware/security");
+const {notFound,errorHandler} = require("./middleware/error-handler");
+const { attachCsrfToken } = require("./middleware/csrf");
 
-const productRouter=require('./routes/product-routes');
+//Routes
+const productRouter = require('./routes/product-routes');
+const pageRouter = require("./routes/page-routes");
+const authRouter = require("./routes/auth-routes");
 
+
+// --------------------------------------------------
+// Basic configuration
+// --------------------------------------------------
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
+app.set('view engine', 'hbs');
+app.disable('view cache');
+app.set('view cache', false);
+app.set("views", path.join(__dirname, "views"));
 
+// --------------------------------------------------
+// Security
+// -------------------------------------------------
 
-app.use((req, res, next) => {
-    res.locals.nonce = crypto.randomBytes(16).toString("hex");
-    next();
-});
+app.use(securityMiddleware);
 
-app.use(
-    helmet({
-        contentSecurityPolicy: {
-            directives: {
-                defaultSrc: ["'self'"],
-                styleSrc: [
-                    "'self'",
-                    "https://cdn.jsdelivr.net",
-                    "https://cdnjs.cloudflare.com",
-                    "https://public.codepenassets.com",
-                    "https://fonts.googleapis.com",
-                ],
-                fontSrc: [
-                    "'self'",
-                    "https://fonts.gstatic.com",
-                    "https://cdnjs.cloudflare.com",
-                    "https://assets.codepen.io",
-                ],
-                scriptSrc: [
-                    "'self'",
-                    (req, res) => `'nonce-${res.locals.nonce}'`,
-                ],
-                imgSrc: ["'self'", "data:"],
-            },
-        },
-    })
-);
+// --------------------------------------------------
+// Parsers / cookies
+// --------------------------------------------------
 
 app.use(cookieParser());
-app.use(authController.attachUser);
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
-app.use((req, res, next) => {
-    res.locals.csrfToken = generateCsrfToken(req, res);
-    next();
-});
+// --------------------------------------------------
+// Authentication / CSRF
+// --------------------------------------------------
+
+app.use(attachCsrfToken);
+app.use(attachUser);
+
+// --------------------------------------------------
+// Static files
+// --------------------------------------------------
+
+const publicDirectory = path.join(__dirname, "./public");
+app.use(express.static(publicDirectory));
+
+// --------------------------------------------------
+// HBS
+// --------------------------------------------------
 
 hbs.registerPartials(
     path.join(__dirname, "views", "partials")
 );
 
-const publicDirectory = path.join(__dirname, "./public");
-app.use(express.static(publicDirectory));
-
-app.use(express.urlencoded({ extended: false }));
-
-app.use(express.json());
-
-app.set('view engine', 'hbs');
-app.disable('view cache');
-app.set('view cache', false);
-
-app.set("views", path.join(__dirname, "views"));
-
-//routes
-app.use('/store',productRouter);
-app.use('/', require("./routes/page"));
-app.use('/auth', require('./routes/auth'));
-
-
 hbs.registerHelper("eq", function (a, b) {
     return a === b;
 });
 
-const PORT = process.env.PORT || 5000;
+// --------------------------------------------------
+// Routes
+// --------------------------------------------------
 
-async function startServer() {
-    await connectToDatabase();
+app.use('/store', productRouter);
+app.use('/', pageRouter);
+app.use('/auth', authRouter);
 
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
-}
+// --------------------------------------------------
+// Error handling
+// --------------------------------------------------
 
-if (require.main === module) {
-    startServer().catch((error) => {
-        console.error("Failed to start server:", error.message);
-        process.exit(1);
-    });
-}
+app.use(notFound);
+app.use(errorHandler);
 
-app.use((req, res) => {
-    res.status(404).render("404", {
-        title: "404 - Page Not Found"
-    });
-});
-
-app.use((err, req, res, next) => {
-
-    if (err === invalidCsrfTokenError || err?.code === "EBADCSRFTOKEN") {
-        console.error("Invalid CSRF token:", err);
-
-        return res.status(403).render("auth-status", {
-            type: "error",
-            title: "Form Expired",
-            message: "This form has expired or is invalid. Please try again.",
-            buttonText: "Go Back",
-            buttonLink: "/login",
-        });
-    }
-
-    console.error(err);
-
-    res.status(500).render("500", {
-        title: "500 - Internal Server Error"
-    });
-
-});
+// --------------------------------------------------
+// Export
+// --------------------------------------------------
 
 module.exports = app;
-

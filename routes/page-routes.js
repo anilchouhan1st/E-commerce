@@ -1,7 +1,8 @@
 const express = require("express");
-const authController = require("../controllers/auth");
+const authController = require("../controllers/auth-controller");
 const { doubleCsrfProtection } = require("../middleware/csrf");
 const router = express.Router();
+const {protect}=require('../middleware/auth');
 
 router.get("/", (req, res) => {
     res.redirect("/login");
@@ -25,13 +26,13 @@ router.get("/forgot-password", (req, res) => {
 
 router.get(
   "/dashboard",
-  authController.protect,
+  protect,
   authController.dashboard
 );
 
 router.post(
     "/logout",
-    authController.protect,
+    protect,
     doubleCsrfProtection,
     (req, res) => {
         res.clearCookie("jwt");

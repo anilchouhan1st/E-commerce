@@ -1,5 +1,6 @@
 const express = require("express");
-const authController = require('../controllers/auth');
+const authController = require('../controllers/auth-controller');
+const {protect} = require("../middleware/auth");
 const {
   registerValidation,
   loginValidation,
@@ -67,13 +68,13 @@ router.post(
 
 router.get(
   "/change-password",
-  authController.protect,
+ protect,
   authController.changePasswordPage
 );
 
 router.post(
   "/change-password",
-  authController.protect,
+  protect,
   doubleCsrfProtection,
   changePasswordValidation,
   authController.changePassword

@@ -21,8 +21,14 @@ const {
   getCsrfTokenFromRequest: (req) => req.body._csrf,
 });
 
+const attachCsrfToken = (req, res, next) => {
+    res.locals.csrfToken = generateCsrfToken(req, res);
+    next();
+};
+
 module.exports = {
   generateCsrfToken,
   doubleCsrfProtection,
   invalidCsrfTokenError,
+  attachCsrfToken
 };
