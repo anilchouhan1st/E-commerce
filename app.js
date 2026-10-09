@@ -26,48 +26,37 @@ const { attachCsrfToken } = require("./middleware/csrf");
 const productRouter = require('./routes/product-routes');
 const pageRouter = require("./routes/page-routes");
 const authRouter = require("./routes/auth-routes");
+const categoryRouter = require('./routes/category-routes');
 
 
-// --------------------------------------------------
 // Basic configuration
-// --------------------------------------------------
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
 app.set('view engine', 'hbs');
 app.disable('view cache');
 app.set('view cache', false);
 app.set("views", path.join(__dirname, "views"));
 
-// --------------------------------------------------
 // Security
-// -------------------------------------------------
 
 app.use(securityMiddleware);
 
-// --------------------------------------------------
 // Parsers / cookies
-// --------------------------------------------------
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// --------------------------------------------------
 // Authentication / CSRF
-// --------------------------------------------------
 
 app.use(attachCsrfToken);
 app.use(attachUser);
 
-// --------------------------------------------------
 // Static files
-// --------------------------------------------------
 
 const publicDirectory = path.join(__dirname, "./public");
 app.use(express.static(publicDirectory));
 
-// --------------------------------------------------
 // HBS
-// --------------------------------------------------
 
 hbs.registerPartials(
     path.join(__dirname, "views", "partials")
@@ -77,23 +66,16 @@ hbs.registerHelper("eq", function (a, b) {
     return a === b;
 });
 
-// --------------------------------------------------
 // Routes
-// --------------------------------------------------
-
 app.use('/store', productRouter);
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
+app.use('/categories', categoryRouter);
 
-// --------------------------------------------------
 // Error handling
-// --------------------------------------------------
 
 app.use(notFound);
 app.use(errorHandler);
 
-// --------------------------------------------------
 // Export
-// --------------------------------------------------
-
 module.exports = app;

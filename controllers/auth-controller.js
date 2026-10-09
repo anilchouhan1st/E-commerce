@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const transporter = require("../config/mail");
 const User = require("../models/User");
 const { passwordRegex } = require("../middleware/validation");
+const Product = require('../models/Product');
 
 function hashToken(token) {
   return crypto
@@ -601,9 +602,13 @@ exports.dashboard = async (req, res, next) => {
         message: "Password changed successfully!",
       };
     }
+    
+    const products = await Product.find({
+      is_active:true
+    })
 
     return res.render("dashboard", {
-      user,
+      user,products,
       isDashboard: true,
       toast,
     });

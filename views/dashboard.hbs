@@ -175,8 +175,39 @@
                 </article>
             </section>
         </div>
-    </main>
 
+<article class="dashboard-card card-account">
+                    <div class="card-heading">
+                        <div class="card-icon blue">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div>
+                            <h3>{{this.name}}</h3>
+                            <p>Keep your profile details up to date.</p>
+                        </div>
+                    </div>
+
+                    <div class="info-list">
+                        {{#each products}}
+                            <div class="product-card">
+                                <h3>{{this.name}}</h3>
+                                <p>{{this.description}}</p>
+                                <p>Price: ${{this.price}}</p>
+                            </div>
+                        {{/each}}
+                        
+                    </div>
+                </article>
+
+
+    {{!-- {{#each products}}
+        <div class="product-card">
+            <h3>{{this.name}}</h3>
+            <p>{{this.description}}</p>
+            <p>Price: ${{this.price}}</p>
+        </div>
+    {{/each}} --}}
+    </main>
     {{> toast}}
 
     <script src="/js/toast.js"></script>

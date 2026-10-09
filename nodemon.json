@@ -1,4 +1,4 @@
 {
-  "watch": ["views", "routes", "app.js"],
+  "watch": ["."],
   "ext": "js,hbs,json"
 }

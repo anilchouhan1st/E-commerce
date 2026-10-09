@@ -1,8 +1,10 @@
-const Product = require('../models/product');
+const Product = require('../models/Product');
+const Category = require("../models/Category");
 
 getAllProduct = async (req, res) => {
     try {
-        const getAllProduct = await Product.find({});
+        // const getAllProduct = await Product.find({});
+        const getAllProduct = await Product.find({ is_active: true }).populate('category_id', 'name');
         res.status(200).json({
             success: true,
             message: "get all product",
@@ -20,7 +22,7 @@ getAllProduct = async (req, res) => {
 getProductById = async (req, res) => {
 try{
 const currentId = req.params.id;
-const singleProduct = await Product.findById(currentId);
+const singleProduct = await Product.findById(currentId).populate('category_id', 'name');
  res.status(200).json({
             success: true,
             message: "get all product",
@@ -30,11 +32,19 @@ const singleProduct = await Product.findById(currentId);
  res.status(500).json({
                 success: false,
                 message: "can't get the product try again with another id",
-            })
+            });
 }
 }
 addProduct = async (req, res) => {
     try {
+        const category = await Category.findById(req.body.category_id);
+
+        if (!category || !category.isActive) {
+        return res.status(400).json({
+            message: "Invalid or inactive category",
+            cons
+        });
+        }
         const addDataform = req.body;
         const addProduct = await Product.create(addDataform);
         if (addProduct) {
