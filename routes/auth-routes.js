@@ -1,6 +1,6 @@
 const express = require("express");
 const authController = require('../controllers/auth-controller');
-const {protect} = require("../middleware/auth");
+const {protect} = require("../middleware/auth-middleware");
 const {
   registerValidation,
   loginValidation,

@@ -17,7 +17,7 @@ const { connectToDatabase } = require("./database/db");
 
 //Middleware
 const { generateCsrfToken, invalidCsrfTokenError } = require("./middleware/csrf");
-const { attachUser } = require("./middleware/auth");
+const { attachUser } = require("./middleware/auth-middleware");
 const securityMiddleware = require("./middleware/security");
 const {notFound,errorHandler} = require("./middleware/error-handler");
 const { attachCsrfToken } = require("./middleware/csrf");
@@ -27,7 +27,7 @@ const productRouter = require('./routes/product-routes');
 const pageRouter = require("./routes/page-routes");
 const authRouter = require("./routes/auth-routes");
 const categoryRouter = require('./routes/category-routes');
-
+const cartRouter = require('./routes/cart-routes');
 
 // Basic configuration
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -36,15 +36,14 @@ app.disable('view cache');
 app.set('view cache', false);
 app.set("views", path.join(__dirname, "views"));
 
-// Security
-
-app.use(securityMiddleware);
-
 // Parsers / cookies
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+// Security
+
+app.use(securityMiddleware);
 
 // Authentication / CSRF
 
@@ -71,6 +70,7 @@ app.use('/store', productRouter);
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
 app.use('/categories', categoryRouter);
+app.use('/cart', cartRouter);
 
 // Error handling
 
