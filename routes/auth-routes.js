@@ -1,6 +1,6 @@
 const express = require("express");
-const authController = require('../controllers/auth-controller');
-const {protect} = require("../middleware/auth-middleware");
+const authController = require('../controllers/authController');
+const {protect} = require("../middleware/authMiddleware");
 const {
   registerValidation,
   loginValidation,
@@ -9,15 +9,15 @@ const {
   resetPasswordValidation,
   changePasswordValidation,
   verificationTokenValidation,
-} = require("../middleware/validation");
+} = require("../middleware/validationMiddleware");
 const {
   loginLimiter,
   registerLimiter,
   forgotPasswordLimiter,
   resetPasswordLimiter,
   verificationLimiter,
-} = require("../middleware/rateLimiter");
-const { doubleCsrfProtection } = require("../middleware/csrf");
+} = require("../middleware/rateLimiterMiddleware");
+const { doubleCsrfProtection } = require("../middleware/csrfMiddleware");
 const router = express.Router();
 
 router.post(

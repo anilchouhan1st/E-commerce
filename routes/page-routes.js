@@ -1,8 +1,8 @@
 const express = require("express");
-const authController = require("../controllers/auth-controller");
-const { doubleCsrfProtection } = require("../middleware/csrf");
+const authController = require("../controllers/authController");
+const { doubleCsrfProtection } = require("../middleware/csrfMiddleware");
 const router = express.Router();
-const {protect}=require('../middleware/auth-middleware');
+const {protect}=require('../middleware/authMiddleware');
 
 router.get("/", (req, res) => {
     res.redirect("/login");

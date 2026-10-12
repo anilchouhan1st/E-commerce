@@ -18,7 +18,10 @@ const {
     path: "/",
   },
   size: 64,
-  getCsrfTokenFromRequest: (req) => req.body._csrf,
+  getCsrfTokenFromRequest: (req) =>
+    req.body?._csrf ||
+    req.headers["x-csrf-token"] ||
+    req.headers["x-xsrf-token"],
 });
 
 const attachCsrfToken = (req, res, next) => {

@@ -16,11 +16,11 @@ const app = express();
 const { connectToDatabase } = require("./database/db");
 
 //Middleware
-const { generateCsrfToken, invalidCsrfTokenError } = require("./middleware/csrf");
-const { attachUser } = require("./middleware/auth-middleware");
-const securityMiddleware = require("./middleware/security");
-const {notFound,errorHandler} = require("./middleware/error-handler");
-const { attachCsrfToken } = require("./middleware/csrf");
+const { generateCsrfToken, invalidCsrfTokenError } = require("./middleware/csrfMiddleware");
+const { attachUser } = require("./middleware/authMiddleware");
+const securityMiddleware = require("./middleware/securityMiddleware");
+const {notFound,errorHandler} = require("./middleware/error-handlerMiddleware");
+const { attachCsrfToken } = require("./middleware/csrfMiddleware");
 
 //Routes
 const productRouter = require('./routes/product-routes');
@@ -28,6 +28,7 @@ const pageRouter = require("./routes/page-routes");
 const authRouter = require("./routes/auth-routes");
 const categoryRouter = require('./routes/category-routes');
 const cartRouter = require('./routes/cart-routes');
+const addressRouter = require("./routes/address-routes");
 
 // Basic configuration
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -66,11 +67,12 @@ hbs.registerHelper("eq", function (a, b) {
 });
 
 // Routes
-app.use('/store', productRouter);
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
+app.use('/store', productRouter);
 app.use('/categories', categoryRouter);
 app.use('/cart', cartRouter);
+app.use('/address', addressRouter);
 
 // Error handling
 

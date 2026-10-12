@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const User = require("../models/userModel");
 
 
 exports.protect = async (req, res, next) => {
@@ -50,6 +50,7 @@ try {
 
   req.user = {
     id: user._id.toString(),
+    _id: user._id,
     role: user.role,
     is_verified: user.is_verified,
   };
@@ -60,9 +61,8 @@ try {
     return rejectAuth(req, res);
   }
 
-
+  return next(error);
 }
-return next(error);
 }
 
 

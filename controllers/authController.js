@@ -2,9 +2,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const transporter = require("../config/mail");
-const User = require("../models/User");
-const { passwordRegex } = require("../middleware/validation");
-const Product = require('../models/Product');
+const User = require("../models/userModel");
+const { passwordRegex } = require("../middleware/validationMiddleware");
+const Product = require('../models/productModel');
 
 function hashToken(token) {
   return crypto
@@ -604,8 +604,8 @@ exports.dashboard = async (req, res, next) => {
     }
     
     const products = await Product.find({
-      is_active:true
-    })
+      is_active: true
+    }).lean();
 
     return res.render("dashboard", {
       user,products,

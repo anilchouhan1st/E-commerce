@@ -1,6 +1,6 @@
-const Cart = require("../models/Cart");
-const Product = require("../models/Product");
-const User = require("../models/User");
+const Cart = require("../models/cartModel");
+const Product = require("../models/productModel");
+const User = require("../models/userModel");
 const mongoose = require("mongoose");
 
 
@@ -92,6 +92,13 @@ const getCartByUserId = async (req, res) => {
     try {
         const userId = req.params.userId;
 
+        if (req.user && req.user.role !== "admin" && req.user.id !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only view your own cart."
+            });
+        }
+
         const cart = await Cart.findOne({ user: userId })
             .populate("items.product");
 
@@ -118,67 +125,128 @@ const getCartByUserId = async (req, res) => {
     }
 };
 
-const updateCartItem = async (req, res) => {
-    try{
-    const UserId = req.params.userId;
-    const ItemId = req.params.itemId;
-    const updateBody = req.body;
-    const updateCartItem = await Cart.findByIdAndUpdate(UserId,updateBody);
-    if(updateCartItem){
-        res.status(200).json({
-            success: true,
-            message: "cart item updated",
-            data: updateCartItem
-        });
+
+const updateCartItem = async (req, res, next) => {
+  try {
+    const { productId, quantity } = req.body;
+    const userId = req.user?.id || req.user?._id;
+
+    // Validate quantity
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({
+        success: false,
+        message: "Quantity must be a positive integer",
+      });
     }
-    }catch(error){
-        res.status(500).json({
-            success: false,
-            message: "can't update the cart item try again with another id",
-        });
-        console.log("Something wrong happen ", error);
+
+    // Find the user's cart
+    const cart = await Cart.findOne({ user: userId });
+
+    if (!cart) {
+      return res.status(404).json({
+        success: false,
+        message: "Cart not found",
+      });
     }
-}
+
+    // Find the product inside the cart
+    const cartItem = cart.items.find(
+      (item) => item.product.toString() === productId
+    );
+
+    if (!cartItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found in cart",
+      });
+    }
+
+    // Update quantity
+    cartItem.quantity = quantity;
+
+    await cart.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart quantity updated successfully",
+      cart,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const removeCartItem = async (req, res) => {
-    try{
-        const UserId = req.params.userId;
-        const ItemId = req.params.itemId;
-        const removeCartItem = await Cart.findByIdAndUpdate(UserId, { $pull: { items: { _id: ItemId } } });
-        if(removeCartItem){
-            res.status(200).json({
-                success: true,
-                message: "cart item removed",
-                data: removeCartItem
+    try {
+        const userId = req.params.userId;
+        const itemId = req.params.itemId;
+
+        if (req.user && req.user.role !== "admin" && req.user.id !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only modify your own cart."
             });
         }
-    }catch(error){
-        res.status(500).json({
+
+        const updatedCart = await Cart.findOneAndUpdate(
+            { user: userId },
+            { $pull: { items: { _id: itemId } } },
+            { returnDocument: 'after' }
+        );
+
+        if (!updatedCart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found for this user",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "cart item removed",
+            data: updatedCart
+        });
+    } catch (error) {
+        console.log("Something wrong happen ", error);
+        return res.status(500).json({
             success: false,
             message: "can't remove the cart item try again with another id",
         });
-        console.log("Something wrong happen ", error);
     }
-}
+};
 
 const removeCart = async (req, res) => {
-    try{
-        const UserId = req.params.userId;
-        const removeCart = await Cart.findByIdAndDelete(UserId);
-        if(removeCart){
-            res.status(200).json({
-                success: true,
-                message: "cart removed",
-                data: removeCart
+    try {
+        const userId = req.params.userId;
+
+        if (req.user && req.user.role !== "admin" && req.user.id !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Access denied. You can only modify your own cart."
             });
         }
-    }catch(error){
-        res.status(500).json({
+
+        const deletedCart = await Cart.findOneAndDelete({ user: userId });
+
+        if (!deletedCart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found for this user",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "cart removed",
+            data: deletedCart
+        });
+    } catch (error) {
+        console.log("Something wrong happen ", error);
+        return res.status(500).json({
             success: false,
             message: "can't remove the cart try again with another id",
         });
-        console.log("Something wrong happen ", error);
     }
-}
+};
 
 module.exports = { addToCart, getCartByUserId, updateCartItem, removeCartItem, removeCart };

@@ -128,12 +128,15 @@
                     <div class="action-group">
                         <a href="/auth/change-password" class="action-btn action-btn-primary">
                             <span><i class="fa-solid fa-lock"></i> Change password</span>
-                            <i class="fa- solid fa-arrow-right"></i>
-                        </a>
-                        <a href="/" class="action-btn action-btn-secondary">
-                            <span><i class="fa-solid fa-right-from-bracket"></i> Logout</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </a>
+                        <form action="/logout" method="POST" style="margin: 0; width: 100%;">
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <button type="submit" class="action-btn action-btn-secondary" style="width: 100%; border: none; cursor: pointer; text-align: left;">
+                                <span><i class="fa-solid fa-right-from-bracket"></i> Logout</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
                     </div>
                 </article>
 
@@ -179,11 +182,11 @@
 <article class="dashboard-card card-account">
                     <div class="card-heading">
                         <div class="card-icon blue">
-                            <i class="fa-solid fa-user"></i>
+                            <i class="fa-solid fa-box-open"></i>
                         </div>
                         <div>
-                            <h3>{{this.name}}</h3>
-                            <p>Keep your profile details up to date.</p>
+                            <h2>Featured Products</h2>
+                            <p>Explore our active catalog.</p>
                         </div>
                     </div>
 

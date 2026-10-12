@@ -1,6 +1,7 @@
 const password = document.getElementById("password");
 const rules = document.getElementById("password-rules");
 
+if (password && rules) {
 password.addEventListener("focus", () => {
     rules.style.display = "block";
 });
@@ -29,6 +30,7 @@ password.addEventListener("input", () => {
     }
 
 });
+}
 
 // Check if all password requirements are met
 function allValid(value) {

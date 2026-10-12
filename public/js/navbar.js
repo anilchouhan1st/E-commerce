@@ -37,31 +37,32 @@ function handleClick(event) {
 
 const nav = document.querySelector('.nav');
 
-const links = nav.querySelectorAll('li a');
+if (nav) {
+  const links = nav.querySelectorAll('li a');
 
-for (let i = 0; i < links.length; i++) {
-  links[i].addEventListener('click', handleClick);
-  links[i].addEventListener("mousemove", (event) => {
-    const tilt = inverseMousePosition(event.target, event);
+  for (let i = 0; i < links.length; i++) {
+    links[i].addEventListener('click', handleClick);
+    links[i].addEventListener("mousemove", (event) => {
+      const tilt = inverseMousePosition(event.target, event);
 
-    nav.style.setProperty("--tilt-bg-y", tilt.x1 * 2); 
-    nav.style.setProperty("--tilt-bg-x", tilt.y1 * 2); 
+      nav.style.setProperty("--tilt-bg-y", tilt.x1 * 2); 
+      nav.style.setProperty("--tilt-bg-x", tilt.y1 * 2); 
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const activeLink = nav.querySelector('li.active a');
+
+    if (!activeLink) return;
+
+    const { width, left } =
+      activeLink.parentNode.getBoundingClientRect();
+
+    const offsetLeft =
+      left - nav.getBoundingClientRect().left;
+
+    nav.style.setProperty('--after-bg-position', offsetLeft);
+    nav.style.setProperty('--after-radial-bg-position', offsetLeft + width / 2);
+    nav.style.setProperty('--after-bg-width', width);
   });
 }
-
-window.addEventListener('DOMContentLoaded', () => {
-
-  const activeLink = nav.querySelector('li.active a');
-
-  if (!activeLink) return;
-
-  const { width, left } =
-    activeLink.parentNode.getBoundingClientRect();
-
-  const offsetLeft =
-    left - nav.getBoundingClientRect().left;
-
-  nav.style.setProperty('--after-bg-position', offsetLeft);
-  nav.style.setProperty('--after-radial-bg-position', offsetLeft + width / 2);
-  nav.style.setProperty('--after-bg-width', width);
-});
