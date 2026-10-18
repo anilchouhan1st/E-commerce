@@ -29,6 +29,7 @@ const authRouter = require("./routes/auth-routes");
 const categoryRouter = require('./routes/category-routes');
 const cartRouter = require('./routes/cart-routes');
 const addressRouter = require("./routes/address-routes");
+const orderRouter = require("./routes/order-routes");
 
 // Basic configuration
 app.set("trust proxy", process.env.TRUST_PROXY === "true" ? 1 : false);
@@ -73,6 +74,7 @@ app.use('/store', productRouter);
 app.use('/categories', categoryRouter);
 app.use('/cart', cartRouter);
 app.use('/address', addressRouter);
+app.use('/order', orderRouter);
 
 // Error handling
 

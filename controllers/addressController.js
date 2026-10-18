@@ -99,4 +99,140 @@ const getAddresses = async (req, res, next) => {
   }
 };
 
-module.exports = { addAddress,getAddresses };
+const deleteAddress = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const { addressId } = req.params;
+
+    // Validate MongoDB ObjectId format to prevent cast errors
+    if (!mongoose.Types.ObjectId.isValid(addressId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid address ID format",
+      });
+    }
+
+    // 1. Delete only if it belongs to the authenticated user
+    const deletedAddress = await Address.findOneAndDelete({
+      _id: addressId,
+      user: userId,
+    });
+
+    if (!deletedAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found or unauthorized",
+      });
+    }
+
+    let newDefaultAddress = null;
+
+    // 2. If the deleted address was the default, assign a new one
+    if (deletedAddress.isDefault) {
+      newDefaultAddress = await Address.findOneAndUpdate(
+        { user: userId },
+        { $set: { isDefault: true } },
+        { sort: { createdAt: -1 }, new: true } // Picks the most recently created address
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Address deleted successfully",
+      deletedAddressId: addressId,
+      newDefaultAddressId: newDefaultAddress?._id || null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateAddress = async (req, res, next) => {
+  try {
+    const userId = req.user?._id;
+    const { addressId } = req.params;
+    const updates = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(addressId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid address ID format",
+      });
+    }
+
+    const allowedFields = [
+      "fullName",
+      "phone",
+      "addressLine1",
+      "addressLine2",
+      "city",
+      "state",
+      "postalCode",
+      "country",
+      "addressType",
+      "isDefault",
+    ];
+
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        updateData[field] = updates[field];
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided for update",
+      });
+    }
+
+    // Check existing address state
+    const existingAddress = await Address.findOne({
+      _id: addressId,
+      user: userId,
+    });
+
+    if (!existingAddress) {
+      return res.status(404).json({
+        success: false,
+        message: "Address not found or unauthorized",
+      });
+    }
+
+    // Prevent manually demoting a default address to non-default
+    // Users must designate another address as default instead
+    if (existingAddress.isDefault && updateData.isDefault === false) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot unset default address. Set another address as default instead.",
+      });
+    }
+
+    // If making this address default, clear defaults on all other addresses
+    if (updateData.isDefault === true && !existingAddress.isDefault) {
+      await Address.updateMany(
+        { user: userId, _id: { $ne: addressId } },
+        { $set: { isDefault: false } }
+      );
+    }
+
+    Object.assign(existingAddress, updateData);
+    const updatedAddress = await existingAddress.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Address updated successfully",
+      address: updatedAddress,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  addAddress,
+  getAddresses,
+  updateAddress,
+  deleteAddress,
+};
