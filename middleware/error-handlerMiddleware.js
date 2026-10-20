@@ -2,6 +2,8 @@ const { invalidCsrfTokenError } = require("./csrfMiddleware");
 
 const isApiRequest = (req) =>
     req.originalUrl.startsWith("/cart") ||
+    req.originalUrl.startsWith("/orders") ||
+    req.originalUrl.startsWith("/order") ||
     req.originalUrl.startsWith("/store") ||
     req.originalUrl.startsWith("/categories") ||
     req.xhr ||

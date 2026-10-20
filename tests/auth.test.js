@@ -17,7 +17,7 @@ beforeAll(async () => {
   await testDb.connect();
 
   app = require("../app");
-  User = require("../models/User");
+  User = require("../models/userModel");
   transporter = require("../config/mail");
 });
 

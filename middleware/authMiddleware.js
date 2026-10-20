@@ -7,7 +7,11 @@ exports.protect = async (req, res, next) => {
     res.clearCookie("jwt");
 
     // Cart/API requests should receive JSON, not the login page
-    if (req.originalUrl.startsWith("/cart")) {
+    if (
+      req.originalUrl.startsWith("/cart") ||
+      req.originalUrl.startsWith("/orders") ||
+      req.originalUrl.startsWith("/order")
+    ) {
       return res.status(401).json({
         success: false,
         message: "Please log in first"

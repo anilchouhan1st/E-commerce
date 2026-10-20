@@ -1,10 +1,10 @@
-const { MongoMemoryServer } = require("mongodb-memory-server");
+const { MongoMemoryReplSet } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
 
 let mongoServer;
 
 async function connect() {
-  mongoServer = await MongoMemoryServer.create();
+  mongoServer = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
   const uri = mongoServer.getUri();
   process.env.MONGODB_URI = uri;
   await mongoose.connect(uri);

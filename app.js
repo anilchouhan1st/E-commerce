@@ -74,7 +74,7 @@ app.use('/store', productRouter);
 app.use('/categories', categoryRouter);
 app.use('/cart', cartRouter);
 app.use('/address', addressRouter);
-app.use('/order', orderRouter);
+app.use("/order", orderRouter);
 
 // Error handling
 

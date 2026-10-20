@@ -14,10 +14,10 @@ beforeAll(async () => {
   await testDb.connect();
 
   app = require("../app");
-  User = require("../models/User");
-  Category = require("../models/Category");
-  Product = require("../models/Product");
-  Cart = require("../models/Cart");
+  User = require("../models/userModel");
+  Category = require("../models/categoryModel");
+  Product = require("../models/productModel");
+  Cart = require("../models/cartModel");
 });
 
 afterAll(async () => {
