@@ -1,15 +1,17 @@
 import "./ProductCard.css"
-function ProductCard() {
+function ProductCard(props) {
     return (
         <div className="product-card"
         >
-            <div className="product-image">
-                product Image
-            </div>
+             <img
+                src={props.image}
+                alt={props.name}
+                className="product-image"
+            />
 
-             <h3>Wireless Headphones</h3>
-            <p>₹1,499</p>
-            <button>Add to Cart</button>
+             <h3>{props.name}</h3>
+            <p>{props.price}</p>
+            <button onClick={props.onAddToCart}>Add to Cart</button>
         </div>
     )
 }
