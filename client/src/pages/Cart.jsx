@@ -1,20 +1,91 @@
-function Cart(props) {
-     console.log(props.cart);
-  return (
-    <div>
-      <h1>Shopping Cart</h1>
+import { useState, useEffect } from "react";
+// import "./Cart.css"; // if you have styling, or keep existing imports
 
-      {props.cart.length === 0 ? (
+function Cart() {
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchCart() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Vite proxy forwards '/cart' directly to http://localhost:5000/cart
+        const response = await fetch("/cart", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Ensures JWT cookie is included
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Failed to load cart");
+        }
+
+        // data.data is the cart object; data.data.items is the array of populated products
+        setCartItems(data.data?.items || []);
+      } catch (err) {
+        console.error("Cart fetch error:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCart();
+  }, []);
+
+  if (loading) {
+    return <div className="cart-container"><p>Loading your cart...</p></div>;
+  }
+
+  if (error) {
+    return (
+      <div className="cart-container">
+        <p className="error-message">Error: {error}</p>
+        <p>Please log in to view your cart.</p>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="cart-container">
+        <h2>Your Cart</h2>
         <p>Your cart is empty.</p>
-      ) : (
-        props.cart.map((item) => (
-          <div key={item.id}>
-            <h3>{item.name}</h3>
-            <p>Price: ₹{item.price}</p>
-            <p>Quantity: {item.quantity}</p>
+      </div>
+    );
+  }
+
+  const subtotal = cartItems.reduce((acc, item) => {
+    const price = item.product?.price || 0;
+    return acc + price * item.quantity;
+  }, 0);
+
+  return (
+    <div className="cart-container">
+      <h2>Your Cart</h2>
+      <div className="cart-list">
+        {cartItems.map((item) => (
+          <div key={item._id} className="cart-item">
+            <div className="item-details">
+              <h4>{item.product?.title || "Product"}</h4>
+              <p>Price: ₹{item.product?.price}</p>
+              <p>Quantity: {item.quantity}</p>
+              <p>Total: ₹{(item.product?.price || 0) * item.quantity}</p>
+            </div>
           </div>
-        ))
-      )}
+        ))}
+      </div>
+
+      <div className="cart-summary">
+        <h3>Subtotal: ₹{subtotal}</h3>
+      </div>
     </div>
   );
 }

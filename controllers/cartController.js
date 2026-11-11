@@ -103,7 +103,7 @@ const getCartByUserId = async (req, res) => {
             .populate("items.product");
 
         if (!cart) {
-            return res.status(404).json({
+            return res.status(403).json({
                 success: false,
                 message: "Cart not found for this user"
             });
@@ -125,6 +125,34 @@ const getCartByUserId = async (req, res) => {
     }
 };
 
+const getMyCart = async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ user: req.user.id }).populate(
+      "items.product"
+    );
+
+    // If no cart exists yet, return an empty items array instead of an error
+    if (!cart) {
+      return res.status(200).json({
+        success: true,
+        message: "Cart is empty",
+        data: { items: [] },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Cart retrieved successfully",
+      data: cart,
+    });
+  } catch (error) {
+    console.error("Error retrieving user cart:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to retrieve cart",
+    });
+  }
+};
 
 const updateCartItem = async (req, res, next) => {
   try {
@@ -249,4 +277,4 @@ const removeCart = async (req, res) => {
     }
 };
 
-module.exports = { addToCart, getCartByUserId, updateCartItem, removeCartItem, removeCart };
+module.exports = { addToCart, getCartByUserId, updateCartItem, removeCartItem, getMyCart, removeCart };
