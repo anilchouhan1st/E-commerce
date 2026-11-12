@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-// import "./Cart.css"; // if you have styling, or keep existing imports
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -40,6 +39,42 @@ function Cart() {
     fetchCart();
   }, []);
 
+  async function handleUpdateQuantity(productId, newQuantity) {
+  if (newQuantity < 1) return;
+
+  try {
+    const response = await fetch("/cart/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        productId: productId,
+        quantity: newQuantity,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to update quantity");
+    }
+
+    // Update local React state while preserving populated product details
+    setCartItems((previousItems) =>
+      previousItems.map((item) =>
+        item.product?._id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
+  } catch (err) {
+    console.error("Update quantity error:", err);
+    alert(err.message);
+  }
+}
+
   if (loading) {
     return <div className="cart-container"><p>Loading your cart...</p></div>;
   }
@@ -74,11 +109,28 @@ function Cart() {
         {cartItems.map((item) => (
           <div key={item._id} className="cart-item">
             <div className="item-details">
-              <h4>{item.product?.title || "Product"}</h4>
+              <h4>{item.product?.name || "Product"}</h4>
               <p>Price: ₹{item.product?.price}</p>
               <p>Quantity: {item.quantity}</p>
-              <p>Total: ₹{(item.product?.price || 0) * item.quantity}</p>
+              
             </div>
+              <div className="quantity-controls">
+                <button
+                  onClick={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
+                  disabled={item.quantity <= 1}
+                >
+                  -
+                </button>
+
+                <span> {item.quantity} </span>
+
+                <button
+                  onClick={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
+                >
+                  +
+                </button>
+                <p>Total: ₹{(item.product?.price || 0) * item.quantity}</p>
+              </div>
           </div>
         ))}
       </div>
